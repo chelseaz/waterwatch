@@ -91,7 +91,7 @@ To change this template use Tools | Templates.
 	  .append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-	var dataUrl = "http://localhost:5000/reservoir/SHA"
+	var dataUrl = "{{ url_for('reservoir_api', abv='SHA') }}"
 	d3.csv(dataUrl, function(error, data) {
 	  color.domain(d3.keys(data[0]).filter(function(key) {
 		  return key !== "DATE" && key !== "OUTFLOW (CF)";

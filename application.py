@@ -1,4 +1,5 @@
 import datetime
+import json
 import re
 import requests
 
@@ -24,6 +25,9 @@ class Reservoir(db.Model):
     def toCsvRow(self):
         return ",".join([self.abv, self.name, str(self.latitude), str(self.longitude)])
 
+    def to_JSON(self):
+        return json.dumps({"id": abv, "latitude": latitude, "longitude": longitude})
+
 
 class ReservoirData(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -41,6 +45,11 @@ class ReservoirData(db.Model):
 
 @app.route("/")
 def index():
+    return render_template('index.html')
+
+
+@app.route("/popover")
+def popover():
     return render_template('popover.html')
 
 
@@ -94,7 +103,7 @@ def fetch_reservoirs():
             elif re.search(r'\d+', str):
                 Data.append(str.strip())
 
-        record = Reservoir(abv=ID, name=name, latitude=float(Data[1]), longitude=float(Data[2]))
+        record = Reservoir(abv=ID, name=name, latitude=float(Data[1]), longitude=-float(Data[2]))
         db.session.add(record)
         db.session.commit()
 

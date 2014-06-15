@@ -2,8 +2,11 @@
 <html>
 <head>
 	{% block head %}
+	<meta charset=utf-8 />
 	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+	<script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.js'></script>
+	<link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.css' rel='stylesheet' />
 	<title>{% block title %}{% endblock %}</title>
 	{% endblock %}
 </head>
@@ -13,9 +16,47 @@
 		<h1>Water Supply Visualization</h1>
 	{% endblock %}
 	</div>
+	<div id='map'></div>
 	<div id="footer">
 	{% block footer%}
 	{% endblock%}
 	</div>
+
+	<script>
+	var map = L.mapbox.map('map', 'chelseazhang.ih1g0ofb').setView([37.283, -113.291], 6);
+	var reservoirLayer = L.mapbox.featureLayer().addTo(map);
+
+	$(function() {
+		$.get('{{ url_for('reservoirs_api') }}', function(data) {
+			var rows = data.split("\n");
+			var features = [];
+			for (var i = 1; i < rows.length; i++) {  // ignore header
+				var row = rows[i].split(",");
+				var feature = {
+					type: 'Feature',
+			        properties: {
+			        	abv: row[0],
+			            title: row[1],
+			            'marker-color': '#f86767',
+			            'marker-size': 'large',
+			            'marker-symbol': 'star'
+			        },
+			        geometry: {
+			            type: 'Point',
+			            coordinates: [parseFloat(row[3]), parseFloat(row[2])]
+			        }
+				}
+				features[features.length] = feature;
+			}
+
+			var geojson = {
+				type: 'FeatureCollection',
+				features: features
+			};
+
+			reservoirLayer.setGeoJSON(geojson);
+		});
+	});
+	</script>
 </body>
 </html>
