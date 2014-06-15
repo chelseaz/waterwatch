@@ -65,8 +65,8 @@ def reservoir_api(abv):
     return ReservoirData.header + "\n" + "\n".join(map(lambda row: row.toCsvRow(), rows))
 
 
-START_DATE = "1/1/2010"
-END_DATE = "1/1/2012"
+START_DATE = "1/1/2008"
+END_DATE = "1/1/2010"
 
 sensors = {
     "inflow": {"id": 76, "convert": (lambda cfs: cfs*SECONDS_IN_DAY )},

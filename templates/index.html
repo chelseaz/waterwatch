@@ -7,32 +7,49 @@
 	<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
 	<script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.js'></script>
 	<link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.css' rel='stylesheet' />
-	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
 	<script src="{{ url_for('static', filename='d3.js') }}"></script>
+	<link rel="stylesheet" href="{{ url_for('static', filename='nv.d3.css') }}">
+	<script src="{{ url_for('static', filename='nv.d3.js') }}"></script>
+	<script src="{{ url_for('static', filename='chart1.js') }}"></script>
+	<script src="{{ url_for('static', filename='chart2.js') }}"></script>
 
-		
 	<style>
 		/*styling for viz*/
-		svg {
+		body {
 		  font: 10px sans-serif;
 		}
 
-		.area {
+		#chart1 .area {
 		  fill: steelblue;
 		  clip-path: url(#clip);
 		}
 
-		.axis path,
-		.axis line {
+		#chart1 .axis path,
+		#chart1 .axis line {
 		  fill: none;
 		  stroke: #000;
 		  shape-rendering: crispEdges;
 		}
 
-		.brush .extent {
+		#chart1 .brush .extent {
 		  stroke: #fff;
 		  fill-opacity: .125;
 		  shape-rendering: crispEdges;
+		}
+
+		#chart2 .axis path,
+		#chart2 .axis line {
+		  fill: none;
+		  stroke: #000;
+		  shape-rendering: crispEdges;
+		}
+
+		#chart2 .bar {
+		  fill: steelblue;
+		}
+
+		#chart2 .x.axis path {
+		  display: none;
 		}
 
 	</style>
@@ -45,7 +62,8 @@
 	<div id='map'></div>
 	<div id='popover'>
 		<div id="popoverTitle"></div>
-		<div id ="chart"></div>
+		<div id="chart1"></div>
+		<div id="chart2"></div>
 	</div>
 	<div id="footer">
 	{% block footer%}
@@ -61,115 +79,11 @@
 		// update viz based on map selection
 		var changePopover = function(abv) {
 			$('#popoverTitle').html("<h2>" + reservoirs[abv] + "</h2>")
-			$('#chart').empty();
+			$('#chart1').empty();
+			$('#chart2').empty();
 
-var margin = {top: 10, right: 10, bottom: 100, left: 80},
-    margin2 = {top: 430, right: 10, bottom: 20, left: 80},
-    width = 560 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom,
-    height2 = 500 - margin2.top - margin2.bottom;
-
-var parseDate = d3.time.format("%Y%m%d").parse;
-
-var x = d3.time.scale().range([0, width]),
-    x2 = d3.time.scale().range([0, width]),
-    y = d3.scale.linear().range([height, 0]),
-    y2 = d3.scale.linear().range([height2, 0]);
-
-var xAxis = d3.svg.axis().scale(x).orient("bottom"),
-    xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
-    yAxis = d3.svg.axis().scale(y).orient("left");
-
-var brush = d3.svg.brush()
-    .x(x2)
-	.extent([0,.1])///////// fixed width
-    .on("brush", brushed);
-
-var area = d3.svg.area()
-    .interpolate("monotone")
-    .x(function(d) { return x(d.DATE); })
-    .y0(height)
-    .y1(function(d) { return y(d.STORAGE); });
-
-var area2 = d3.svg.area()
-    .interpolate("monotone")
-    .x(function(d) { return x2(d.DATE); })
-    .y0(height2)
-    .y1(function(d) { return y2(d.STORAGE); });
-
-var svg = d3.select("#chart").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom);
-
-svg.append("defs").append("clipPath")
-    .attr("id", "clip")
-  .append("rect")
-    .attr("width", width)
-    .attr("height", height);
-
-var focus = svg.append("g")
-    .attr("class", "focus")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-var context = svg.append("g")
-    .attr("class", "context")
-    .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
-
-// "https://lamany-gossan.codio.io/cmn.csv"
-var curDataUrl = dataUrl.replace('ABV', abv);
-d3.csv(curDataUrl, type, function(error, data) {
-  x.domain(d3.extent(data.map(function(d) { return d.DATE; })));
- /// y.domain([0, maxiumum])
-  y.domain([0, d3.max(data.map(function(d) { return d.STORAGE; }))]);
-  x2.domain(x.domain());
-  y2.domain(y.domain());
-
-  focus.append("path")
-      .datum(data)
-      .attr("class", "area")
-      .attr("d", area);
-
-  focus.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
-
-  focus.append("g")
-      .attr("class", "y axis")
-      .call(yAxis);
-
-  context.append("path")
-      .datum(data)
-      .attr("class", "area")
-      .attr("d", area2);
-
-  context.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height2 + ")")
-      .call(xAxis2);
-
-  context.append("g")
-      .attr("class", "x brush")
-  	.call(brush)
-    .selectAll("rect")
-      .attr("y", -6)
-      .attr("height", height2 + 7);
-});
-
-function brushed() {
-	x.domain(brush.empty() ? x2.domain() : brush.extent());
-  focus.select(".area").attr("d", area);
-  focus.select(".x.axis").call(xAxis);
-/////////remove////////
-
-}
-
-function type(d) {
-  d.DATE = parseDate(d.DATE);
-  d.STORAGE = +d.STORAGE;
-  return d;
-}
-
+			updateChart1(abv);
+			updateChart2(abv);
 		}
 
 		// initialize map markers and reservoir array

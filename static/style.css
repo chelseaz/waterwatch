@@ -16,5 +16,10 @@ body {
 	top: 0;
 	bottom: 0;
 	right: 0;
-	width: 60%;
+	width: 64%;
+	overflow: scroll;
+}
+
+#chart1 {
+	margin-bottom: 40px;
 }
