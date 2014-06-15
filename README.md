@@ -32,3 +32,8 @@ http://localhost:5000/reservoirs
 
 API endpoint for one reservoir's data (e.g. CMN):
 http://localhost:5000/reservoir/CMN
+
+
+# Original inspiration
+
+http://blogs.kqed.org/lowdown/2014/03/18/into-the-drought-californias-shrinking-reservoirs/
