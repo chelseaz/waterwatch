@@ -27,5 +27,8 @@ python application.py
 
 Navigate to http://localhost:5000/
 
+API endpoint for all reservoirs:
+http://localhost:5000/reservoirs
+
 API endpoint for one reservoir's data (e.g. CMN):
 http://localhost:5000/reservoir/CMN
