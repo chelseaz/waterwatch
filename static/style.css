@@ -3,6 +3,29 @@ body {
 	padding: 0;
 }
 
+#header {
+	position: absolute;
+	top: 0;
+	height: 75px;
+	background-color: #333333;
+	width: 100%;
+}
+
+#header-text {
+	margin-top: 10px;
+	color: white;
+	text-align: center;
+	font-size: 48px;
+	letter-spacing: 8px;
+}
+
+#content {
+	position: absolute;
+	top: 75px;
+	bottom: 0;
+	width: 100%;
+}
+
 #map { 
 	position: absolute; 
 	top: 0; 
@@ -20,6 +43,13 @@ body {
 	overflow: scroll;
 }
 
+#popoverTitle {
+	font-size: 16px;
+	text-align: center;
+
+}
+
 #chart1 {
+	margin-top: 10px;
 	margin-bottom: 40px;
 }

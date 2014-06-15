@@ -1,9 +1,9 @@
 var updateChart1 = function(abv) {
-    var margin = {top: 10, right: 10, bottom: 100, left: 80},
-        margin2 = {top: 430, right: 10, bottom: 20, left: 80},
+    var margin = {top: 10, right: 10, bottom: 100, left: 40},
+        margin2 = {top: 330, right: 10, bottom: 20, left: 40},
         width = 768 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom,
-        height2 = 500 - margin2.top - margin2.bottom;
+        height = 400 - margin.top - margin.bottom,
+        height2 = 400 - margin2.top - margin2.bottom;
 
     var parseDate = d3.time.format("%Y%m%d").parse;
 
@@ -12,13 +12,17 @@ var updateChart1 = function(abv) {
         y = d3.scale.linear().range([height, 0]),
         y2 = d3.scale.linear().range([height2, 0]);
 
-    var xAxis = d3.svg.axis().scale(x).orient("bottom"),
-        xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
-        yAxis = d3.svg.axis().scale(y).orient("left");
+    var xAxis = d3.svg.axis().scale(x).orient("bottom")
+                .ticks(0);   
+    var xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
+        yAxis = d3.svg.axis()
+        .scale(y).orient("left")
+        .tickFormat(d3.format("s"))
+        .ticks(10);///limits texts;
 
     var brush = d3.svg.brush()
         .x(x2)
-      .extent([0,.1])///////// fixed width
+      .extent([0,.16])///////// fixed width
         .on("brush", brushed);
 
     var area = d3.svg.area()
@@ -68,6 +72,21 @@ var updateChart1 = function(abv) {
           .attr("class", "x axis")
           .attr("transform", "translate(0," + height + ")")
           .call(xAxis);
+
+      focus.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("class", "shadow")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Cubic Feet");
+  
+   focus.append("text")
+       .attr("transform", "rotate(-90)")
+       .attr("y", 6)
+       .attr("dy", ".71em")
+       .style("text-anchor", "end")
+       .text("Cubic Feet");
 
       focus.append("g")
           .attr("class", "y axis")

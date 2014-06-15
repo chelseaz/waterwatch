@@ -39,7 +39,7 @@ var updateChart2 = function(abv) {
             chart.yAxis
                 .axisLabel("Cubic Feet")
         //         Choose tick format ("d" or ",.2f")
-                .tickFormat(d3.format("d"))
+                .tickFormat(d3.format("s"))
                 ;
 
         // "#chart svg" doesn't work

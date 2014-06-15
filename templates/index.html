@@ -52,6 +52,12 @@
 		  display: none;
 		}
 
+		text.shadow { 
+			stroke: white;
+			stroke-width: 2.5px;
+			opacity: 0.9;	
+			}
+
 	</style>
 	
 
@@ -59,11 +65,18 @@
 	{% endblock %}
 </head>
 <body>
-	<div id='map'></div>
-	<div id='popover'>
-		<div id="popoverTitle"></div>
-		<div id="chart1"></div>
-		<div id="chart2"></div>
+	<div id="header">
+		<div id="header-text">
+			WATER WATCH
+		</div>
+	</div>
+	<div id="content">
+		<div id='map'></div>
+		<div id='popover'>
+			<div id="popoverTitle"></div>
+			<div id="chart1"></div>
+			<div id="chart2"></div>
+		</div>
 	</div>
 	<div id="footer">
 	{% block footer%}
@@ -78,7 +91,7 @@
 	$(function() {
 		// update viz based on map selection
 		var changePopover = function(abv) {
-			$('#popoverTitle').html("<h2>" + reservoirs[abv] + "</h2>")
+			$('#popoverTitle').html("<h3>" + reservoirs[abv] + "</h3>")
 			$('#chart1').empty();
 			$('#chart2').empty();
 
@@ -101,9 +114,9 @@
 			        properties: {
 			        	abv: abv,
 			            title: title,
-			            'marker-color': '#f86767',
-			            'marker-size': 'large',
-			            'marker-symbol': 'star'
+			            'marker-color': '#554dd8',
+			            'marker-size': 'medium',
+			            'marker-symbol': 'water'
 			        },
 			        geometry: {
 			            type: 'Point',
@@ -119,6 +132,10 @@
 			};
 
 			reservoirLayer.setGeoJSON(geojson);
+
+			reservoirLayer.on('mouseover', function(e) {
+			    e.layer.openPopup();
+			});
 
 			reservoirLayer.on('click', function(e) {
 				changePopover(e.layer.feature.properties.abv);
