@@ -1,8 +1,10 @@
 import datetime
+import re
 import requests
 
 from flask import Flask, render_template
 from flask.ext.sqlalchemy import SQLAlchemy
+from pattern import web
 
 
 app = Flask(__name__)
@@ -22,9 +24,9 @@ class ReservoirData(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     abv = db.Column(db.String(3), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
-    inflow = db.Column(db.Integer)
-    outflow = db.Column(db.Integer)
-    storage = db.Column(db.Integer)
+    inflow = db.Column(db.BigInteger)
+    outflow = db.Column(db.BigInteger)
+    storage = db.Column(db.BigInteger)
 
     def toCsvRow(self):
         return ",".join([self.date.strftime("%Y%m%d"), str(self.inflow), str(self.outflow), str(self.storage)])
@@ -43,7 +45,13 @@ def reservoir_api(abv):
     return ReservoirData.header + "\n" + "\n".join(map(lambda row: row.toCsvRow(), rows))
 
 
-sensor_ids = {"inflow": 76, "outflow": 23, "storage": 15}
+SECONDS_IN_DAY = 86400
+CUBIC_FEET_IN_ACRE_FOOT = 43560
+sensors = {
+    "inflow": {"id": 76, "convert": (lambda cfs: cfs*SECONDS_IN_DAY )},
+    "outflow": {"id": 23, "convert": (lambda cfs: cfs*SECONDS_IN_DAY)}, 
+    "storage": {"id": 15, "convert": (lambda af: af*CUBIC_FEET_IN_ACRE_FOOT)}
+}
 
 
 def migrate_up():
@@ -51,14 +59,40 @@ def migrate_up():
     db.engine.execute("create index reservoir_data_abv_date on reservoir_data (abv, date)")
 
 
-### TODO: convert units
+def fetch_reservoirs():
+    xml = requests.get('http://cdec.water.ca.gov/misc/daily_res.html').text
+    dom = web.Element(xml)
+    for tr in dom.by_tag('tr')[1:]: 
+        if re.search(r'colspan="7"', tr.content):
+            continue
+
+        name = None
+        ID = None
+        Data = []  # elevation, latitude, longitude
+
+        for td in tr.by_tag('td'):
+            str = td.content
+            if re.search(r'href', str):
+                name = tr.by_tag('a')[0].content
+            elif re.search(r'<b', str):
+                ID = tr.by_tag('b')[0].content
+            elif re.search(r'\d+', str):
+                Data.append(str.strip())
+
+        record = Reservoir(abv=ID, name=name, latitude=float(Data[1]), longitude=float(Data[2]))
+        db.session.add(record)
+        db.session.commit()
+
 
 def fetch_sensor_data(reservoir, sensor_name):
-    start_date = "1/1/2012"
-    end_date = "6/5/2014"
+    START_DATE = "1/1/2012"
+    END_DATE = "6/5/2014"
+    sensor_id = sensors[sensor_name]["id"]
+    sensor_convert_fn = sensors[sensor_name]["convert"]
+    print "Fetching %s data for reservoir %s, starting %s, ending %s" % (sensor_name, reservoir.abv, START_DATE, END_DATE)
 
-    baseurl = "http://cdec.water.ca.gov/cgi-progs/queryCSV?station_id=%s&dur_code=D&sensor_num=%d&start_date=%s&end_date=%s"
-    resp = requests.get(baseurl % (reservoir.abv, sensor_ids[sensor_name], start_date, end_date))
+    baseurl = "http://cdec.water.ca.gov/cgi-progs/queryCSV?station_id=%s&dur_code=D&sensor_num=%d&START_DATE=%s&END_DATE=%s"
+    resp = requests.get(baseurl % (reservoir.abv, sensor_id, START_DATE, END_DATE))
     for line in resp.text.split('\r\n')[2:]:  # exclude first 2 lines
         row = line.split(',')
         if len(row) < 3:
@@ -68,7 +102,7 @@ def fetch_sensor_data(reservoir, sensor_name):
         if row[2] == 'm':
             value = 0
         else:
-            value = int(row[2])
+            value = sensor_convert_fn(int(row[2]))
 
         record = ReservoirData.query.filter_by(abv=reservoir.abv, date=date).first()
         if record is None:
@@ -78,14 +112,11 @@ def fetch_sensor_data(reservoir, sensor_name):
         db.session.commit()
 
 
-def fetch_data(reservoir):
-    for key in sensor_ids.keys():
-        fetch_sensor_data(reservoir, key)
-
-
 def populate_db():
+    fetch_reservoirs()
     for reservoir in Reservoir.query.all():
-        fetch_data(reservoir)
+        for key in sensors.keys():
+            fetch_sensor_data(reservoir, key)
 
 
 if __name__ == "__main__":
