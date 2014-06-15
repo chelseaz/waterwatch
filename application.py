@@ -37,7 +37,7 @@ class ReservoirData(db.Model):
     outflow = db.Column(db.BigInteger)
     storage = db.Column(db.BigInteger)
 
-    header = "DATE,INFLOW (CF),OUTFLOW (CF),STORAGE (CF)"
+    header = "DATE,INFLOW (CF),OUTFLOW (CF),STORAGE"
 
     def toCsvRow(self):
         return ",".join([self.date.strftime("%Y%m%d"), str(self.inflow), str(self.outflow), str(self.storage)])
@@ -65,8 +65,8 @@ def reservoir_api(abv):
     return ReservoirData.header + "\n" + "\n".join(map(lambda row: row.toCsvRow(), rows))
 
 
-START_DATE = "1/1/2012"
-END_DATE = "6/5/2014"
+START_DATE = "1/1/2010"
+END_DATE = "1/1/2012"
 
 sensors = {
     "inflow": {"id": 76, "convert": (lambda cfs: cfs*SECONDS_IN_DAY )},
