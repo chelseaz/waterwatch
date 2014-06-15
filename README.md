@@ -16,6 +16,10 @@ Now create the schema in the python shell:
     >>> from application import *
     >>> migrate_up()
 
+Populate your local database with water data. This might take a few minutes:
+
+    >>> populate_db()
+
 
 # Running
 

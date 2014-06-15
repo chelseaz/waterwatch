@@ -19,6 +19,11 @@ class Reservoir(db.Model):
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
 
+    header = "ID,NAME,LATITUDE,LONGITUDE"
+
+    def toCsvRow(self):
+        return ",".join([self.abv, self.name, str(self.latitude), str(self.longitude)])
+
 
 class ReservoirData(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -28,15 +33,21 @@ class ReservoirData(db.Model):
     outflow = db.Column(db.BigInteger)
     storage = db.Column(db.BigInteger)
 
+    header = "DATE,INFLOW (CF),OUTFLOW (CF),STORAGE (CF)"
+
     def toCsvRow(self):
         return ",".join([self.date.strftime("%Y%m%d"), str(self.inflow), str(self.outflow), str(self.storage)])
-
-    header = "DATE,INFLOW (CF),OUTFLOW (CF),STORAGE (CF)"
 
 
 @app.route("/")
 def index():
     return render_template('index.html')
+
+
+@app.route("/reservoirs")
+def reservoirs_api():
+    rows = Reservoir.query.all()
+    return Reservoir.header + "\n" + "\n".join(map(lambda row: row.toCsvRow(), rows))
 
 
 @app.route("/reservoir/<abv>")
@@ -45,13 +56,17 @@ def reservoir_api(abv):
     return ReservoirData.header + "\n" + "\n".join(map(lambda row: row.toCsvRow(), rows))
 
 
-SECONDS_IN_DAY = 86400
-CUBIC_FEET_IN_ACRE_FOOT = 43560
+START_DATE = "1/1/2012"
+END_DATE = "6/5/2014"
+
 sensors = {
     "inflow": {"id": 76, "convert": (lambda cfs: cfs*SECONDS_IN_DAY )},
     "outflow": {"id": 23, "convert": (lambda cfs: cfs*SECONDS_IN_DAY)}, 
     "storage": {"id": 15, "convert": (lambda af: af*CUBIC_FEET_IN_ACRE_FOOT)}
 }
+
+SECONDS_IN_DAY = 86400
+CUBIC_FEET_IN_ACRE_FOOT = 43560
 
 
 def migrate_up():
@@ -85,13 +100,11 @@ def fetch_reservoirs():
 
 
 def fetch_sensor_data(reservoir, sensor_name):
-    START_DATE = "1/1/2012"
-    END_DATE = "6/5/2014"
     sensor_id = sensors[sensor_name]["id"]
     sensor_convert_fn = sensors[sensor_name]["convert"]
     print "Fetching %s data for reservoir %s, starting %s, ending %s" % (sensor_name, reservoir.abv, START_DATE, END_DATE)
 
-    baseurl = "http://cdec.water.ca.gov/cgi-progs/queryCSV?station_id=%s&dur_code=D&sensor_num=%d&START_DATE=%s&END_DATE=%s"
+    baseurl = "http://cdec.water.ca.gov/cgi-progs/queryCSV?station_id=%s&dur_code=D&sensor_num=%d&start_date=%s&end_date=%s"
     resp = requests.get(baseurl % (reservoir.abv, sensor_id, START_DATE, END_DATE))
     for line in resp.text.split('\r\n')[2:]:  # exclude first 2 lines
         row = line.split(',')
