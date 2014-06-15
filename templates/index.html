@@ -40,13 +40,9 @@
 	{% endblock %}
 </head>
 <body>
-	<div id="content">
-	{% block content %}
-		<h1>Water Supply Visualization</h1>
-	{% endblock %}
-	</div>
 	<div id='map'></div>
 	<div id='popover'>
+		<div id="popoverTitle"></div>
 		<div id="slider" style="width: 600px;"></div>
 		<div id ="chart"></div>
 	</div>
@@ -76,12 +72,12 @@
 
 		// update viz based on map selection
 		var changePopover = function(abv) {
-			var chart = $('#chart');
-			chart.empty();
+			$('#popoverTitle').html("<h2>" + reservoirs[abv] + "</h2>")
+			$('#chart').empty();
 
 			var margin = {top: 20, right: 20, bottom: 30, left: 40},
-				width = 600 - margin.left - margin.right,
-				height = 500 - margin.top - margin.bottom;
+				width = 1000 - margin.left - margin.right,
+				height = 400 - margin.top - margin.bottom;
 
 			var x = d3.scale.ordinal()
 				.rangeRoundBands([0, width], .1); //this will have to be fixed
@@ -190,17 +186,21 @@
 			});
 		}
 
-		// initialize map markers
+		// initialize map markers and reservoir array
+		reservoirs = {};
 		$.get('{{ url_for('reservoirs_api') }}', function(data) {
 			var rows = data.split("\n");
 			var features = [];
 			for (var i = 1; i < rows.length; i++) {  // ignore header
 				var row = rows[i].split(",");
+				var abv = row[0];
+				var title = row[1];
+				reservoirs[abv] = title;
 				var feature = {
 					type: 'Feature',
 			        properties: {
-			        	abv: row[0],
-			            title: row[1],
+			        	abv: abv,
+			            title: title,
 			            'marker-color': '#f86767',
 			            'marker-size': 'large',
 			            'marker-symbol': 'star'
