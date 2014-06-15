@@ -1,2 +1,20 @@
-body { margin:0; padding:0; }
-#map { position:absolute; top:0; bottom:0; width:100%; }
+body {
+	margin: 0;
+	padding: 0;
+}
+
+#map { 
+	position: absolute; 
+	top: 0; 
+	bottom: 0;
+	left: 0;
+	width: 33%; 
+}
+
+#popover { 
+	position: absolute; 
+	top: 0;
+	bottom: 0;
+	right: 0;
+	width: 60%;
+}
