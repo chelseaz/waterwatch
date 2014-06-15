@@ -13,8 +13,8 @@ Make sure the water database exists:
 
 Now create the schema in the python shell:
 
-    >>> from application import db
-    >>> db.create_all()
+    >>> from application import *
+    >>> migrate_up()
 
 
 # Running
@@ -22,3 +22,6 @@ Now create the schema in the python shell:
 python application.py 
 
 Navigate to http://localhost:5000/
+
+API endpoint for one reservoir's data (e.g. CMN):
+http://localhost:5000/reservoir/CMN
