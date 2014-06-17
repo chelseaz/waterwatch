@@ -36,4 +36,4 @@ http://localhost:5000/reservoir/CMN
 
 # Original inspiration
 
-http://blogs.kqed.org/lowdown/2014/03/18/into-the-drought-californias-shrinking-reservoirs/
+KQED's [Visualization: How the Drought is Shrinking California’s Reservoirs](http://blogs.kqed.org/lowdown/2014/03/18/into-the-drought-californias-shrinking-reservoirs/)
