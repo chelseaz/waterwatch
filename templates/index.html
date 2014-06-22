@@ -3,13 +3,13 @@
 <head>
 	{% block head %}
 	<meta charset=utf-8 />
-	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
-	<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
-	<script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.js'></script>
-	<link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.css' rel='stylesheet' />
-	<script src="{{ url_for('static', filename='d3.js') }}"></script>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" >
+	<link rel='stylesheet' href='//api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.css' />
 	<link rel="stylesheet" href="{{ url_for('static', filename='nv.d3.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	<script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+	<script src='//api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.js'></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.min.js"></script>
 	<script src="{{ url_for('static', filename='nv.d3.js') }}"></script>
 	<script src="{{ url_for('static', filename='chart1.js') }}"></script>
 	<script src="{{ url_for('static', filename='chart2.js') }}"></script>
@@ -78,22 +78,6 @@
 			<div id="popoverTitle"></div>
 			<div id="chart1"></div>
 			<div id="chart2"></div>
-			<div id="statsTable">
-
-<div class = "container-fluid">
-<div class = "row-fluid">
-					   
-			<table class="table table-bordered table-hover">
-			<tr class = "info"><th>Scenario</th><th>Date</th><th>Montly Water Bill</th><th>Gallons used per 30 days*</th><th>County Population</th>				<th>Cubic Feet by County Population</th><th>Reservoir storage</th><th>% Daily Use of Storage</th><th>% Annual Use of 					Storage</th></tr>
-			<tr><td>Actual</td><td>5/1/14</td><td>$46.94</td><td>2940</td><td>827,420</td><td>325,194,379</td><td>7,081,858,335</td>				<td>4.4%</td><td>52.4%</td></tr>
-			<tr><td>Projected</td><td>5/1/14</td><td>$21.65</td><td>1356</td><td>827420</td><td>149,987,612</td><td>7,081,858,335</td>				<td>2.0%</td><td>24.2%</td></tr>
-			</table>
-			<p>Source: *American Water Works Association, US Census 2012</p>
-
-	  </div>
-	</div>	
-
-			</div>
 		</div>
 	</div>
 	<div id="footer">

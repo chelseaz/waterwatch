@@ -10,8 +10,8 @@ from pattern import web
 
 
 app = Flask(__name__)
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/water'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://chelsea:hetchhetchy@waterwatchca.cgxi4wiqvq40.us-east-1.rds.amazonaws.com/water'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/water'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://chelsea:hetchhetchy@waterwatchca.cgxi4wiqvq40.us-east-1.rds.amazonaws.com/water'
 db = SQLAlchemy(app)
 
 
