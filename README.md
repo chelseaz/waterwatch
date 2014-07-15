@@ -1,5 +1,19 @@
 # Installation
 
+If you don't already have virtualenv installed:
+
+	pip install virtualenv
+
+Create a virtual environment to hold the installed packages:
+
+	virtualenv venv
+
+Run the generated script. In the future, prior to running the app you'll want to run this as well.
+
+	source venv/bin/activate 
+
+Now install the packages:
+
     pip install -r requirements.txt 
 
 
