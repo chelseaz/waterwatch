@@ -20,7 +20,7 @@ Now install the packages:
 # Set up database
 Make sure mysql is installed locally. 
 Create a user and password (feel free to use the existing root user).
-In application.py, update the SQLALCHEMY_DATABASE_URI for your mysql user/password.
+In application.py, update the SQLALCHEMY_DATABASE_URI to use your mysql user/password.
 Make sure the water database exists:
 
     mysql> create database water;
