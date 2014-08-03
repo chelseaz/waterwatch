@@ -101,7 +101,8 @@ def update_data():
             fetch_sensor_data(reservoir, key, start_date, end_date)
 
 
-sched.add_cron_job(update_data, day_of_week='sun', hour=6)
+# This is now handled by Heroku scheduler
+# sched.add_cron_job(update_data, day_of_week='sun', hour=6)
 
 
 def migrate_up():
