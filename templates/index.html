@@ -1,152 +1,163 @@
 <!DOCTYPE html>
 <html>
 <head>
-	{% block head %}
-	<meta charset=utf-8 />
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" >
-	<link rel='stylesheet' href='//api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.css' />
-	<link rel="stylesheet" href="{{ url_for('static', filename='nv.d3.css') }}">
-	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-	<script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
-	<script src='//api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.js'></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.min.js"></script>
-	<script src="{{ url_for('static', filename='nv.d3.js') }}"></script>
-	<script src="{{ url_for('static', filename='chart1.js') }}"></script>
-	<script src="{{ url_for('static', filename='chart2.js') }}"></script>
+    {% block head %}
+    <meta charset=utf-8 />
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" >
+    <link rel='stylesheet' href='//api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.css' />
+    <link rel="stylesheet" href="{{ url_for('static', filename='nv.d3.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    <script src='//api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.js'></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.min.js"></script>
+    <script src="{{ url_for('static', filename='nv.d3.js') }}"></script>
+    <script src="{{ url_for('static', filename='chart1.js') }}"></script>
+    <script src="{{ url_for('static', filename='chart2.js') }}"></script>
 
-	<style>
-		/*styling for viz*/
-		#chart1, 
-		#chart2 {
-		  font: 10px sans-serif;
-		}
+    <style>
+        /*styling for viz*/
+        #chart1, 
+        #chart2 {
+          font: 10px sans-serif;
+        }
 
-		#chart1 .area {
-		  fill: steelblue;
-		  clip-path: url(#clip);
-		}
+        #chart1 .area {
+          fill: steelblue;
+          clip-path: url(#clip);
+        }
 
-		#chart1 .axis path,
-		#chart1 .axis line {
-		  fill: none;
-		  stroke: #000;
-		  shape-rendering: crispEdges;
-		}
+        #chart1 .axis path,
+        #chart1 .axis line {
+          fill: none;
+          stroke: #000;
+          shape-rendering: crispEdges;
+        }
 
-		#chart1 .brush .extent {
-		  stroke: #fff;
-		  fill-opacity: .125;
-		  shape-rendering: crispEdges;
-		}
+        #chart1 .brush .extent {
+          stroke: #fff;
+          fill-opacity: .125;
+          shape-rendering: crispEdges;
+        }
 
-		#chart2 .axis path,
-		#chart2 .axis line {
-		  fill: none;
-		  stroke: #000;
-		  shape-rendering: crispEdges;
-		}
+        #chart2 .axis path,
+        #chart2 .axis line {
+          fill: none;
+          stroke: #000;
+          shape-rendering: crispEdges;
+        }
 
-		#chart2 .bar {
-		  fill: steelblue;
-		}
+        #chart2 .bar {
+          fill: steelblue;
+        }
 
-		#chart2 .x.axis path {
-		  display: none;
-		}
+        #chart2 .x.axis path {
+          display: none;
+        }
 
-		text.shadow { 
-			stroke: white;
-			stroke-width: 2.5px;
-			opacity: 0.9;	
-			}
+        text.shadow { 
+            stroke: white;
+            stroke-width: 2.5px;
+            opacity: 0.9;    
+            }
 
-	</style>
-	
+    </style>
+    
 
-	<title>{% block title %}{% endblock %}</title>
-	{% endblock %}
+    <title>{% block title %}{% endblock %}</title>
+    {% endblock %}
 </head>
 <body>
-	<div id="header">
-		<div id="header-text">
-			WATER WATCH
-		</div>
-	</div>
-	<div id="content">
-		<div id='map'></div>
-		<div id='popover'>
-			<div id="popoverTitle"></div>
-			<div id="chart1"></div>
-			<div id="chart2"></div>
-		</div>
-	</div>
-	<div id="footer">
-	{% block footer%}
-	{% endblock%}
-	</div>
+    <div id="header">
+        <div id="header-text">
+            WATER WATCH
+        </div>
+    </div>
+    <div id="content">
+        <div id='map'></div>
+        <div id='popover'>
+            <div id="popoverTitle"></div>
+            <div id="chart1"></div>
+            <div id="chart2"></div>
+        </div>
+    </div>
+    <div id="footer">
+    {% block footer%}
+    {% endblock%}
+    </div>
 
-	<script>
-	var map = L.mapbox.map('map', 'chelseazhang.ih1g0ofb').setView([37.3, -120], 6);
-	var reservoirLayer = L.mapbox.featureLayer().addTo(map);
-	var dataUrl = "{{ url_for('reservoir_api', abv='ABV') }}"
+    <script>
+    var map = L.mapbox.map('map', 'chelseazhang.ih1g0ofb').setView([37.3, -120], 6);
+    var reservoirLayer = L.mapbox.featureLayer().addTo(map);
+    var dataUrl = "{{ url_for('reservoir_api', abv='ABV') }}"
 
-	$(function() {
-		// update viz based on map selection
-		var changePopover = function(abv) {
-			$('#popoverTitle').html("<h3>" + reservoirs[abv] + "</h3>")
-			$('#chart1').empty();
-			$('#chart2').empty();
+    $(function() {
+        // update viz based on map selection
+        var changePopover = function(abv) {
+            $('#popoverTitle').html("<h3>" + reservoirs[abv] + "</h3>")
+            $('#chart1').empty();
+            $('#chart2').empty();
 
-			updateChart1(abv);
-			updateChart2(abv);
-		}
+            updateChart1(abv);
+            updateChart2(abv);
+        }
 
-		// initialize map markers and reservoir array
-		reservoirs = {};
-		$.get('{{ url_for('reservoirs_api') }}', function(data) {
-			var rows = data.split("\n");
-			var features = [];
-			for (var i = 1; i < rows.length; i++) {  // ignore header
-				var row = rows[i].split(",");
-				var abv = row[0];
-				var title = row[1];
-				reservoirs[abv] = title;
-				var feature = {
-					type: 'Feature',
-			        properties: {
-			        	abv: abv,
-			            title: title,
-			            'marker-color': '#554dd8',
-			            'marker-size': 'medium',
-			            'marker-symbol': 'water'
-			        },
-			        geometry: {
-			            type: 'Point',
-			            coordinates: [parseFloat(row[3]), parseFloat(row[2])]
-			        }
-				}
-				features[features.length] = feature;
-			}
+        // initialize map markers and reservoir array
+        reservoirs = {};
+        $.get('{{ url_for('reservoirs_api') }}', function(data) {
+            var rows = data.split("\n");
+            var features = [];
+            for (var i = 1; i < rows.length; i++) {  // ignore header
+                var row = rows[i].split(",");
+                var abv = row[0];
+                var title = row[1];
+                reservoirs[abv] = title;
+                var feature = {
+                    type: 'Feature',
+                    properties: {
+                        abv: abv,
+                        title: title,
+                        'marker-color': '#554dd8',
+                        'marker-size': 'medium',
+                        'marker-symbol': 'water'
+                    },
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [parseFloat(row[3]), parseFloat(row[2])]
+                    }
+                }
+                features[features.length] = feature;
+            }
 
-			var geojson = {
-				type: 'FeatureCollection',
-				features: features
-			};
+            var geojson = {
+                type: 'FeatureCollection',
+                features: features
+            };
 
-			reservoirLayer.setGeoJSON(geojson);
+            reservoirLayer.setGeoJSON(geojson);
 
-			reservoirLayer.on('mouseover', function(e) {
-			    e.layer.openPopup();
-			});
+            reservoirLayer.on('mouseover', function(e) {
+                e.layer.openPopup();
+            });
 
-			reservoirLayer.on('click', function(e) {
-				changePopover(e.layer.feature.properties.abv);
-			});
+            reservoirLayer.on('click', function(e) {
+                changePopover(e.layer.feature.properties.abv);
+            });
 
-			// initialize popover to CMN
-			changePopover('CMN');
-		});
-	});
-	</script>
+            // initialize popover to CMN
+            changePopover('CMN');
+        });
+    });
+    </script>
+
+    <!-- Google Analytics tracking -->
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-41411450-2', 'auto');
+        ga('send', 'pageview');
+    </script>
 </body>
 </html>
